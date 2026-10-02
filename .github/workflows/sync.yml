@@ -1,0 +1,76 @@
+# Every 30 minutes: read your Amazing bookmarks from Raindrop and publish the site.
+# Nothing is saved back into the repository, so there is nothing to clash with.
+name: Sync Raindrop and publish
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:          # the "Run workflow" button
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write                # to publish the site
+  id-token: write
+  actions: write              # lets the schedule keep itself switched on
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Start from the list that is live on the site
+        run: |
+          echo "Workflow version 4: nothing is saved back into the repository."
+          if curl -fsSL --max-time 30 "${{ steps.pages.outputs.base_url }}/articles.json" -o "$RUNNER_TEMP/live.json" \
+             && node -e "const d=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); if(!Array.isArray(d.articles)) process.exit(1)" "$RUNNER_TEMP/live.json"; then
+            cp "$RUNNER_TEMP/live.json" articles.json
+            echo "Using the list currently on the site."
+          else
+            echo "No list on the site yet (normal on the first run). Starting from the list in the repository."
+          fi
+
+      - name: Read the Amazing bookmarks from Raindrop
+        env:
+          RAINDROP_TOKEN: ${{ secrets.RAINDROP_TOKEN }}
+          PUBLISH_TAG: ${{ vars.PUBLISH_TAG }}
+          FEATURE_TAG: ${{ vars.FEATURE_TAG }}
+        run: node scripts/sync.mjs
+
+      - name: Keep the schedule switched on
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable sync.yml || true
+
+      - name: Collect the site files
+        run: |
+          mkdir _site
+          cp index.html articles.json _site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
