@@ -55,7 +55,7 @@ header .wrap{height:64px;display:flex;align-items:center;justify-content:space-b
 main{flex:1;display:flex;align-items:center;padding:var(--spacing-16) 0 var(--spacing-24)}
 .hero{display:grid;grid-template-columns:1.15fr 1fr;gap:var(--spacing-72);align-items:center}
 
-.stage{perspective:1400px;min-width:0}
+.stage{position:relative;perspective:1800px;min-width:0}
 .window{display:block;width:100%;text-align:left;cursor:pointer;background:var(--color-paper);border:1px solid var(--color-lavender-mist);
   border-radius:var(--radius-lg);padding:var(--spacing-32);box-shadow:0 0 0 1px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.04);
   font-size:16px;color:var(--color-sst-ink);transform-origin:50% 50%;backface-visibility:hidden;
@@ -89,37 +89,37 @@ h1{margin-top:var(--spacing-16);font:500 48px/1.1 var(--font-rubik-variable);let
 /* ---------- Quiet band: the shelf as plain text ---------- */
 .band{padding-bottom:var(--spacing-32)}
 .eyebrow{font:600 12px/1.5 var(--font-rubik-variable);text-transform:uppercase;letter-spacing:.056em;color:var(--color-fog)}
-.sources{display:flex;flex-wrap:wrap;gap:var(--spacing-8) var(--spacing-32);margin-top:var(--spacing-12);
-  font:400 13px/1.5 var(--font-rubik-variable);color:var(--color-fog)}
-.sources span{transition:color .15s ease}
-.sources span.on{color:var(--color-sst-ink);font-weight:600}
+/* the shelf as a slow river: site names drift past, bob on the water, and a new arrival glides in at the head */
+:root{--pencil:#8844ae}
+.river{position:relative;height:84px;margin-top:8px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 7%,#000 93%,transparent 100%)}
+.water{position:absolute;left:0;right:0;bottom:4px;height:38px;pointer-events:none}
+.water svg{position:absolute;left:0;top:0;overflow:visible;animation:flow linear infinite}
+.water path{fill:none;stroke-linecap:round}
+@keyframes flow{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.drops{position:absolute;inset:0}
+.drop{position:absolute;left:0;top:16px;will-change:transform}
+.name{display:inline-block;font:400 13px/1.5 var(--font-rubik-variable);color:var(--color-fog);white-space:nowrap;
+  animation:bob 4.4s ease-in-out infinite alternate;animation-delay:var(--d,0s);transition:color .3s ease}
+.name.on{color:var(--color-sst-ink);font-weight:600;animation:bobOn 3.2s ease-in-out infinite alternate}
+.name.arrive{animation:arrive 1.3s cubic-bezier(.2,.8,.2,1) both,bobOn 3.2s ease-in-out 1.3s infinite alternate}
+@keyframes bob{from{transform:translateY(-3px)}to{transform:translateY(3px)}}
+@keyframes bobOn{from{transform:translateY(-6px)}to{transform:translateY(3px)}}
+@keyframes arrive{from{transform:translateY(-14px) scale(1.25);opacity:0}to{transform:translateY(-3px) scale(1);opacity:1}}
+.ring{position:absolute;left:-12px;top:6px;width:24px;height:24px;border:1px solid var(--pencil);border-radius:50%;pointer-events:none;
+  opacity:0;animation:ring 1.5s ease-out .45s both}
+@keyframes ring{0%{transform:scale(.3);opacity:.7}100%{transform:scale(3.2);opacity:0}}
 
 /* ---------- Footer: one row, text only ---------- */
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--spacing-8) var(--spacing-24);padding-top:var(--spacing-24);padding-bottom:var(--spacing-24);
   font:400 13px/1.5 var(--font-rubik-variable);color:var(--color-fog)}
 
-/* ---------- A small butterfly resting on the g of "something" ---------- */
-.g{position:relative;display:inline-block}
-.butterfly{position:absolute;left:50%;top:.37em;width:.62em;height:auto;overflow:visible;pointer-events:none;
-  transform:translate(-46%,-88%) rotate(-9deg);transform-origin:50% 100%}
-.butterfly .wings{transform-origin:20px 16px;animation:flutter 3.2s ease-in-out infinite}
-.butterfly .wings path{fill:var(--color-lavender-mist);stroke:var(--color-sst-ink);stroke-width:1;stroke-linejoin:round}
-.butterfly .dot{fill:var(--color-sst-ink)}
-.butterfly .feeler{fill:none;stroke:var(--color-sst-ink);stroke-width:.8;stroke-linecap:round}
-.butterfly .body{fill:var(--color-sst-ink)}
-/* a slow open and close, then a quick flurry, then rest */
-@keyframes flutter{
-  0%,100%{transform:scaleX(1)}
-  18%{transform:scaleX(.7)}
-  36%{transform:scaleX(1)}
-  56%{transform:scaleX(1)}
-  60%{transform:scaleX(.18)}
-  66%{transform:scaleX(1)}
-  71%{transform:scaleX(.18)}
-  77%{transform:scaleX(1)}
-  82%{transform:scaleX(.22)}
-  88%{transform:scaleX(1)}
-}
+/* a real page turn: the old page lifts off its left edge, swings away in perspective, and shades as it goes */
+.turner{position:absolute;z-index:3;pointer-events:none;transform-origin:0 50%;will-change:transform,opacity}
+.turner .window{width:100%;height:100%;margin:0}
+.turner .shade{position:absolute;inset:0;border-radius:8px;background:#303055;opacity:0}
+.cast{position:absolute;z-index:2;pointer-events:none;border-radius:8px;opacity:0;
+  background:linear-gradient(90deg,rgba(48,48,85,.26),rgba(48,48,85,0) 62%)}
 
 @media (max-width:900px){
   .hero{grid-template-columns:1fr;gap:var(--spacing-40)}
@@ -154,17 +154,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(-
 
       <div class="copy">
         <span class="badge" id="badge"></span>
-        <h1>I read somethin<span class="g">g<svg class="butterfly" viewBox="0 0 40 32" aria-hidden="true" focusable="false">
-          <g class="wings">
-            <path d="M20 14C14 4 4 2 2 8C1 14 8 18 20 17Z"/>
-            <path d="M20 17C12 18 6 22 8 27C11 31 17 27 20 20Z"/>
-            <path d="M20 14C26 4 36 2 38 8C39 14 32 18 20 17Z"/>
-            <path d="M20 17C28 18 34 22 32 27C29 31 23 27 20 20Z"/>
-            <circle class="dot" cx="9" cy="9" r="1.8"/><circle class="dot" cx="31" cy="9" r="1.8"/>
-          </g>
-          <path class="feeler" d="M20 11Q18 5 15 3M20 11Q22 5 25 3"/>
-          <ellipse class="body" cx="20" cy="17" rx="1.4" ry="6.5"/>
-        </svg></span> amazing.</h1>
+        <h1>I read something amazing.</h1>
         <p class="sub">One good article, picked from everything I&rsquo;ve been reading. Scroll to flip through them.</p>
         <p class="cmd"><span aria-hidden="true">&gt; </span>read <b id="cmd"></b></p>
       </div>
@@ -175,7 +165,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(-
 <div class="band">
   <div class="wrap">
     <p class="eyebrow">On the shelf</p>
-    <div class="sources" id="sources" aria-hidden="true"></div>
+    <div class="river" id="river" aria-hidden="true"><div class="water" id="water"></div><div class="drops" id="drops"></div></div>
   </div>
 </div>
 
@@ -295,7 +285,7 @@ function render(silent){
   $('badge').textContent=index===pickIndex?(pinnedOpen?'Featured':'Latest'):`No. ${pad(index+1)}`;
   $('cmd').textContent=a.slug;
   $('window').setAttribute('aria-label',`Open “${a.title}” by ${a.author||a.source} in a new window`);
-  [...$('sources').children].forEach(s=>s.classList.toggle('on',s.dataset.src===a.source));
+  document.querySelectorAll('#drops .name').forEach(s=>s.classList.toggle('on',s.dataset.src===a.source));
   if(!silent) $('live').textContent=`Article ${index+1} of ${N}: ${a.title}, by ${a.author||a.source}.`;
 }
 
@@ -319,19 +309,38 @@ addEventListener('resize',()=>{clearTimeout(resizeTimer); resizeTimer=setTimeout
 
 function go(dir){
   if(busy||N<2) return;
-  index=(index+dir+N)%N;
-  if(reduce){render();return}
+  const from=index, to=(index+dir+N)%N, w=$('window'), st=$('stage');
+  if(reduce){ index=to; render(); return }
   busy=true;
-  const w=$('window');
-  w.classList.add(dir>0?'out-next':'out-prev');
-  setTimeout(()=>{
-    render();
-    w.classList.remove('out-next','out-prev');
-    w.classList.add(dir>0?'in-next':'in-prev');
-    void w.offsetWidth;                                   // start the next flip from the edge
-    w.classList.remove('in-next','in-prev');
-    setTimeout(()=>{busy=false},220);
-  },190);
+
+  // forward: the OLD page turns away, revealing the new one beneath.  backward: the NEW page turns back in over the old one.
+  const box=w.getBoundingClientRect(), sr=st.getBoundingClientRect();
+  const W=box.width, H=box.height, L=box.left-sr.left, T=box.top-sr.top;
+  index = dir>0 ? from : to; render(true);
+  const snap=w.cloneNode(true);
+  ['id','role','tabindex'].forEach(k=>snap.removeAttribute(k)); snap.setAttribute('aria-hidden','true');
+  const turner=document.createElement('div'); turner.className='turner'; turner.style.cssText=`left:${L}px;top:${T}px;width:${W}px;height:${H}px`;
+  const shade=document.createElement('div'); shade.className='shade';
+  turner.append(snap,shade);
+  const cast=document.createElement('div'); cast.className='cast'; cast.style.cssText=`left:${L}px;top:${T}px;width:${W}px;height:${H}px`;
+
+  index = dir>0 ? to : from; render(dir>0?false:true);      // the page left showing underneath
+  st.append(cast,turner);
+
+  const D=950, opt={duration:D,easing:'cubic-bezier(.5,.05,.35,1)',fill:'forwards',direction:dir>0?'normal':'reverse'};
+  shade.animate([{opacity:0},{opacity:.2,offset:.55},{opacity:.3}],opt);
+  cast.animate([{opacity:0},{opacity:1,offset:.45},{opacity:0}],opt);
+  snap.animate([{boxShadow:'0 4px 12px rgba(0,0,0,.04)'},{boxShadow:'0 30px 54px rgba(48,48,85,.30)',offset:.45},{boxShadow:'0 4px 12px rgba(0,0,0,.04)'}],opt);
+  const turn=turner.animate([
+    {transform:'rotateY(0deg) rotateX(0deg)',opacity:1,offset:0},
+    {transform:'rotateY(-38deg) rotateX(4deg)',opacity:1,offset:.38},      // the far corner lifts first
+    {transform:'rotateY(-98deg) rotateX(1deg)',opacity:1,offset:.82},
+    {transform:'rotateY(-106deg) rotateX(0deg)',opacity:0,offset:1}
+  ],opt);
+  turn.onfinish=()=>{
+    index=to; render();
+    turner.remove(); cast.remove(); busy=false;
+  };
 }
 
 function openCurrent(){
@@ -391,6 +400,12 @@ addEventListener('touchend',e=>{
 const slugify=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,32)||'article';
 const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return ''}};
 
+const shape=data=>(Array.isArray(data)?data:data.articles||[])
+  .filter(a=>a&&a.title&&/^https?:\/\//i.test(a.url||''))
+  .map(a=>({...a,
+    author:a.author||'', source:a.source||hostOf(a.url), minutes:Number(a.minutes)>0?Math.round(a.minutes):0,
+    quote:a.quote||'', summary:a.summary||'', slug:slugify(a.title), featured:a.featured===true}));
+
 async function loadArticles(){
   let data;
   try{
@@ -401,19 +416,101 @@ async function loadArticles(){
     const seed=document.getElementById('seed');
     data=seed?JSON.parse(seed.textContent):{articles:[]};
   }
-  return (Array.isArray(data)?data:data.articles||[])
-    .filter(a=>a&&a.title&&/^https?:\/\//i.test(a.url||''))
-    .map(a=>({...a,
-      author:a.author||'', source:a.source||hostOf(a.url), minutes:Number(a.minutes)>0?Math.round(a.minutes):0,
-      quote:a.quote||'', summary:a.summary||'', slug:slugify(a.title), featured:a.featured===true}));
+  return shape(data);
 }
 
-function showSources(){
-  const names=[...new Set(ARTICLES.map(a=>a.source))];
-  const shown=names.slice(0,8);
-  shown.forEach(n=>{const s=document.createElement('span'); s.textContent=n; s.dataset.src=n; $('sources').appendChild(s)});
-  if(names.length>shown.length){const s=document.createElement('span'); s.textContent=`+${names.length-shown.length} more`; $('sources').appendChild(s)}
+/* While the page stays open, look for newly saved articles every few minutes. The reader is never interrupted:
+   they stay on the article they are reading, and the new site name simply floats into the river. */
+const keyOf=a=>a.id||a.url;
+async function checkForNew(){
+  if(!N||busy||document.hidden) return;
+  let fresh;
+  try{
+    const r=await fetch('articles.json',{cache:'no-cache'}); if(!r.ok) return;
+    fresh=shape(await r.json());
+  }catch(e){ return }
+  if(!fresh.length) return;
+  const same=fresh.length===ARTICLES.length&&fresh.every((a,i)=>keyOf(a)===keyOf(ARTICLES[i]));
+  if(same) return;
+  const known=new Set(ARTICLES.map(keyOf)), added=fresh.filter(a=>!known.has(keyOf(a)));
+  const current=ARTICLES[index];
+  ARTICLES=fresh; N=fresh.length;
+  const at=fresh.findIndex(a=>keyOf(a)===keyOf(current)); index=at>=0?at:0;
+  const pinned=fresh.findIndex(a=>a.featured); pickIndex=pinned>=0?pinned:0; pinnedOpen=pinned>=0;
+  fit();
+  added.slice(0,3).reverse().forEach((a,i)=>setTimeout(()=>arrive(a),i*1800));
 }
+setInterval(checkForNew,5*60*1000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkForNew() });
+
+/* =====================================================================
+   THE RIVER: every article's site name floats along; the current one bobs a little higher
+   ===================================================================== */
+const riverEl=$('river'), dropsEl=$('drops'), waterEl=$('water');
+const SPACING=170, FLOW=22;
+let drops=[], surge=1;
+
+function makeDrop(a,cls){
+  const el=document.createElement('div'); el.className='drop';
+  const name=document.createElement('span'); name.className='name'+(cls?' '+cls:''); name.textContent=a.source; name.dataset.src=a.source;
+  name.style.setProperty('--d',(-Math.random()*4).toFixed(2)+'s');
+  el.appendChild(name); dropsEl.appendChild(el);
+  return {el,name,x:0};
+}
+function buildRiver(){
+  dropsEl.innerHTML=''; drops=[];
+  const W=Math.max(riverEl.clientWidth,320), slots=Math.max(ARTICLES.length+1,Math.ceil((W+330)/SPACING)+2);
+  for(let i=0;i<slots;i++){ const d=makeDrop(ARTICLES[i%ARTICLES.length]); d.x=20+i*SPACING; d.el.style.transform=`translateX(${d.x}px)`; drops.push(d); }
+  if(N) document.querySelectorAll('#drops .name').forEach(s=>s.classList.toggle('on',s.dataset.src===ARTICLES[index].source));
+}
+
+// three thin ripples that flow the same way as the names; each svg is two screens wide so the loop never shows a seam
+function buildWater(){
+  waterEl.innerHTML='';
+  const W=Math.max(riverEl.clientWidth,320), total=W*2;
+  [{wl:150,amp:3,y:9,c:'#e8e8f2',w:1.6,t:30,o:1},{wl:210,amp:2.2,y:20,c:'#a8a8b0',w:1,t:42,o:.4},{wl:120,amp:2.6,y:30,c:'#e8e8f2',w:1.4,t:24,o:1}].forEach(r=>{
+    const n=Math.max(4,Math.round(total/r.wl/4)*4), seg=total/n;           // a whole number of full waves, so half the width is a perfect loop
+    let d=`M0 ${r.y} q ${seg/2} ${-r.amp*2} ${seg} 0`; for(let i=1;i<n;i++) d+=` t ${seg} 0`;
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('width',total); svg.setAttribute('height',40); svg.setAttribute('viewBox',`0 0 ${total} 40`);
+    svg.style.animationDuration=r.t+'s';
+    svg.innerHTML=`<path d="${d}" stroke="${r.c}" stroke-width="${r.w}" opacity="${r.o}"/>`;
+    waterEl.appendChild(svg);
+  });
+}
+
+// a newly saved article: the name that is waiting off-screen on the left takes its place, the river surges a little,
+// and the new name drifts into view with a ripple
+function arrive(a){
+  const waiting=drops.filter(d=>d.x<=-140).sort((p,q)=>q.x-p.x)[0] || drops.reduce((m,d)=>d.x<m.x?d:m,drops[0]);
+  waiting.name.textContent=a.source; waiting.name.dataset.src=a.source; waiting.name.classList.remove('arrive');
+  waiting.fresh=true;
+  surge=20;
+  document.querySelectorAll('#drops .name').forEach(s=>s.classList.toggle('on',s.dataset.src===a.source));
+}
+
+let riverLast=performance.now();
+function riverTick(now){
+  const dt=Math.min(.05,(now-riverLast)/1000); riverLast=now;
+  surge=1+(surge-1)*Math.exp(-dt*1.6);
+  const W=riverEl.clientWidth, span=drops.length*SPACING;
+  drops.forEach(d=>{
+    d.x+=FLOW*surge*dt; if(d.x>W+SPACING*.5) d.x-=span;
+    if(d.fresh && d.x>=0){                                   // it has just floated into view
+      d.fresh=false; void d.name.offsetWidth; d.name.classList.add('arrive');
+      const old=d.el.querySelector('.ring'); if(old) old.remove();
+      const ring=document.createElement('i'); ring.className='ring'; ring.style.animationDelay='0s'; d.el.appendChild(ring);
+    }
+    d.el.style.transform=`translateX(${d.x}px)`;
+  });
+  requestAnimationFrame(riverTick);
+}
+function showSources(){
+  buildWater(); buildRiver();
+  if(!reduce) requestAnimationFrame(riverTick);
+  let t; addEventListener('resize',()=>{clearTimeout(t); t=setTimeout(()=>{buildWater();buildRiver()},200)});
+}
+
 
 if(touch){$('hint-text').textContent='Swipe to flip'; $('hint-keys').innerHTML='&larr;&rarr;'}
 $('year').textContent=new Date().getFullYear();
